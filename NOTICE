@@ -1,0 +1,66 @@
+collabMEM — NOTICE
+Copyright (c) 2026 collaborAItr
+
+================================================================================
+INDEPENDENT IMPLEMENTATION STATEMENT
+================================================================================
+
+collabMEM, and the collaborAItr cognitive memory layer that serves as its
+reference implementation, were designed and implemented independently.
+
+No source code, documentation text, prompt text, schema definitions,
+configuration values, test fixtures, or other copyrightable material from
+MuninnDB (https://github.com/scrypster/muninndb) or from Cognee
+(https://github.com/topoteretes/cognee) was copied, adapted, translated, or
+otherwise incorporated during the design or implementation of collabMEM.
+
+All types, interfaces, database schemas, storage layers, extraction prompts,
+reconciliation logic, activation pipelines, and user-facing inspection
+surfaces described in these docs were authored for collaborAItr from scratch.
+
+--------------------------------------------------------------------------------
+ATTRIBUTION AND ITS LIMITS
+--------------------------------------------------------------------------------
+
+The "Attribution and influences" section of README.md acknowledges MuninnDB
+and Cognee as sources of general design inspiration only. The cognitive-science
+concepts cited in that section — including but not limited to:
+
+  - Engrams as durable, reinforceable memory traces
+    (Semon, "Die Mneme," 1904)
+  - Hebbian association / coactivation-driven weight reinforcement
+    (Hebb, "The Organization of Behavior," 1949)
+  - ACT-R style temporal priority / recency-based activation
+    (Anderson et al., "The Atomic Components of Thought," 1998;
+     ACT-R framework ongoing from 1976)
+  - Bayesian confidence updating on evidence
+    (Bayes, "An Essay towards solving a Problem in the Doctrine of
+     Chances," 1763; Laplace, 1774; classical Bayesian statistics)
+  - Typed, labelled relationship edges in knowledge graphs
+  - Entity deduplication, feedback-weighted retrieval, and temporal
+    range queries over structured memory
+
+are classical constructs from cognitive science, knowledge representation,
+and information retrieval that predate both MuninnDB and Cognee by decades,
+and in several cases by more than a century. collabMEM's use of these
+concepts rests on that public, long-standing prior art and not on any
+proprietary contribution of MuninnDB or Cognee.
+
+--------------------------------------------------------------------------------
+TRADEMARKS
+--------------------------------------------------------------------------------
+
+"MuninnDB" is a trademark of Scrypster / MJ Bonanno. "Cognee" and
+"Topoteretes" are marks of Topoteretes UG. References to those names in
+collabMEM documentation are nominative / comparative references only and do
+not imply endorsement, sponsorship, or any business relationship.
+
+"collabMEM" and "collaborAItr" are marks of collaborAItr.
+
+--------------------------------------------------------------------------------
+LICENSE REFERENCE
+--------------------------------------------------------------------------------
+
+collabMEM documentation is dual-licensed; see LICENSE and COMMERCIAL-LICENSE.md
+for terms. This NOTICE file is informational and does not modify either
+license.

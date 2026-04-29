@@ -1,0 +1,114 @@
+collabMEM: Open Cognitive Memory Architecture
+Copyright (c) 2026 collaborAItr
+
+================================================================================
+DUAL LICENSE
+================================================================================
+
+This work is dual-licensed. You may use it under the terms of EITHER:
+
+  (A) The Creative Commons Attribution-ShareAlike 4.0 International License
+      (CC-BY-SA 4.0), the full text of which appears below, OR
+
+  (B) A separate Commercial License, available from the copyright holder.
+      See [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md) for terms.
+
+Choose (A) for open/community use with attribution and share-alike. Choose (B)
+if you need to embed this architecture in a proprietary product without the
+share-alike obligation or public attribution requirements.
+
+If you have not obtained a Commercial License, your use is governed by the
+CC-BY-SA 4.0 license below.
+
+Contact for Commercial Licensing: see [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md)
+
+================================================================================
+LICENSE (A): CREATIVE COMMONS ATTRIBUTION-SHAREALIKE 4.0 INTERNATIONAL
+================================================================================
+
+This specification, framework, taxonomy, lifecycle definitions, UI/UX
+requirements, storage/retrieval patterns, privacy model, reconciliation
+extensions, and all associated documentation (collectively, "the Work")
+are licensed under the Creative Commons Attribution-ShareAlike 4.0
+International License.
+
+To view a copy of this license, visit:
+https://creativecommons.org/licenses/by-sa/4.0/
+
+--------------------------------------------------------------------------------
+YOU ARE FREE TO:
+--------------------------------------------------------------------------------
+
+  Share  -- copy and redistribute the Work in any medium or format
+  
+  Adapt  -- remix, transform, and build upon the Work for any purpose,
+            including commercially
+
+The licensor cannot revoke these freedoms as long as you follow the license
+terms.
+
+--------------------------------------------------------------------------------
+UNDER THE FOLLOWING TERMS:
+--------------------------------------------------------------------------------
+
+  Attribution (BY)
+
+    You must give appropriate credit to the original authors, provide a link
+    to this license, and indicate if changes were made. You may do so in any
+    reasonable manner, but not in any way that suggests the licensor endorses
+    you or your use.
+
+    Recommended attribution text:
+
+      "Based on collabMEM by 80GritPolymath for collaborAItr,
+       licensed under CC-BY-SA 4.0.
+       https://github.com/collaborAItr/collabMEM-OPUS-4.7"
+
+  ShareAlike (SA)
+
+    If you remix, transform, or build upon the Work, you must distribute your
+    contributions under the same license as the original (CC-BY-SA 4.0).
+
+    This means: any derivative specification, framework document, architecture
+    guide, or reference material derived from this Work must also be published
+    openly under CC-BY-SA 4.0.
+
+  No additional restrictions
+
+    You may not apply legal terms or technological measures that legally
+    restrict others from doing anything the license permits.
+
+--------------------------------------------------------------------------------
+NOTICES:
+--------------------------------------------------------------------------------
+
+You do not have to comply with the license for elements of the material in
+the public domain or where your use is permitted by an applicable exception
+or limitation.
+
+No warranties are given. The license may not give you all of the permissions
+necessary for your intended use. For example, other rights such as publicity,
+privacy, or moral rights may limit how you use the material.
+
+--------------------------------------------------------------------------------
+FULL LEGAL CODE:
+--------------------------------------------------------------------------------
+
+The full legal text of the Creative Commons Attribution-ShareAlike 4.0
+International Public License is available at:
+
+  https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+By exercising the Licensed Rights, You accept and agree to be bound by the
+terms and conditions of that license.
+
+--------------------------------------------------------------------------------
+NO WARRANTIES
+--------------------------------------------------------------------------------
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE WORK OR THE USE
+OR OTHER DEALINGS IN THE WORK.
