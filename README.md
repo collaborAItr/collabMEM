@@ -29,9 +29,9 @@ It is deliberately **model-agnostic, storage-agnostic, and framework-agnostic**.
 
 ## Why collabMEM exists
 
-The default answer to "how do I make my chat app remember?" has become "use a bigger context window" or "retrieve chunks from a vector DB." Neither of those is memory.
+The default answer to "how do I optimize memory for my LLM chat app?" has become "use models with a bigger context window" or "retrieve chunks from a vector DB" or "use Karpathy's Obsidian-based wiki." Unfortunately, none of those is actual "memory" in the sense of an LLM autonomously learning from conversations and updating itself. In Karpathy's wiki solution, it's better described as a **structured, LLM-curated external knowledge store** — closer to a smart personal wiki than to persistent model memory.
 
-### The context-window problem
+### The BIGGER problem - context-window constraints
 
 Every modern LLM chat app faces the same failure mode. As a conversation grows, the implementation stacks user and assistant turns into the prompt until it fills the model's context window. This sounds harmless. In practice it has four compounding costs:
 
@@ -66,7 +66,7 @@ Memory is:
 - **reinforcing** — use strengthens, disuse weakens
 - **external to the context window** — stored in its own store, injected selectively, never replacing itself with an ever-growing transcript
 
-collabMEM documents an architecture that treats memory this way. It was originally developed as the cognitive layer of [collaborAItr](https://www.collaboraitr.com), a multi-model parallel chat application, specifically because the multi-model case magnifies the context-window problem: N models running in parallel each need context, and stacking transcripts into each of them scales multiplicatively. This repository documents the **architecture** abstracted from that implementation, in a form any team can adapt.
+collabMEM documents an architecture that treats memory this way. It was originally developed as the cognitive layer of [collaborAItr](https://www.collaboraitr.com), a multi-model parallel chat application, specifically because the multi-model case magnifies the context-window problem: N models running in parallel each need context, and stacking turns into each of them scales multiplicatively. This repository documents the **architecture** abstracted from that implementation, in a form any team can adapt.
 
 ## What you get
 

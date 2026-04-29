@@ -156,7 +156,7 @@ The terminology — engram, association, activation, reinforcement, priming, Heb
 
 - Every chapter is standalone. You can read them out of order if you know what you are looking for.
 - Diagrams are inline Mermaid. They render on GitHub and in most Markdown viewers.
-- Object shapes are shown as TypeScript-style type sketches because that syntax is widely legible. The sketches are illustrative; your actual fields will depend on your stack.
+- Object shapes are shown as TypeScript-style type sketches because that syntax is widely legible. The sketches are illustrative; your actual fields will depend on your dev stack.
 - Production specifics from the reference implementation are not published here. Where a concept has a tuned value in production — a threshold, a weight, a ratio, a timeout — this documentation describes the shape of the knob and leaves the value to the implementer.
 - The glossary in [docs/glossary.md](glossary.md) is the single source of truth for terminology.
 
