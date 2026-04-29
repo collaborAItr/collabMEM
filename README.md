@@ -115,6 +115,19 @@ A complete, opinionated set of principles about local-first storage, user-owned 
 - LLM coding assistants being asked to implement a memory layer — these docs are written to be loadable as context and unambiguous when quoted.
 - Anyone designing a multi-agent system who wants structured, user-inspectable memory rather than a shared vector blob.
 
+## How collabMEM compares to other memory tools
+
+If you are evaluating collabMEM against the widely-adopted memory tools in the ecosystem — Mem0, Zep / Graphiti, Letta (formerly MemGPT), Cognee, or LangMem — a standalone companion document, [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md), walks through each comparison in detail and is worth reading before adoption.
+
+It makes the case that memory is **an architecture problem, not a retrieval problem**, and covers:
+
+- A deep dive on the **salient digest** — the compression mechanism that holds the prompt at a stable token ceiling regardless of conversation length, so a chat at turn 100 sends the model roughly the same amount of context as a chat at turn 10
+- Honest, side-by-side comparisons against each of the five tools above, including where each of them is the better choice and the specific gaps collabMEM was designed to close
+- A feature-matrix table covering thirteen architectural properties — salient-digest compression, stable context ceiling, typed engrams, Hebbian reinforcement, Bayesian confidence updating, multi-model reconciliation, first-class inspection surfaces, provenance, model- and framework-agnosticism, and local-first storage
+- The honest tradeoff — collabMEM gives you the design, not a deployable system, and is not the right choice if your only goal is shipping a simple single-session chatbot in the next two weeks
+
+If you are comparing options, start there; if you are already convinced, you can skip it and move on to the architectural chapters.
+
 ## Inspired by biology
 
 The terminology in these docs is borrowed from cognitive neuroscience. The words are chosen because the analogies hold usefully, not because the system claims biological equivalence.
@@ -144,12 +157,13 @@ For the full biological framing and how it maps to every field in the architectu
 | 09  | [docs/09-retrieval-activation.md](docs/09-retrieval-activation.md)       | How memory comes back into future prompts                              |
 | 10  | [docs/10-transparency-mutability.md](docs/10-transparency-mutability.md) | Inspection and user-controlled mutation as first-class features        |
 | 11  | [docs/11-implementation-notes.md](docs/11-implementation-notes.md)       | Trade-offs, tuning knobs, pitfalls, evaluation                         |
+| -   | [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md)   | How collabMEM compares to Mem0, Zep, Letta, Cognee, and LangMem        |
 | -   | [docs/glossary.md](docs/glossary.md)                                     | Terms used throughout the docs                                         |
 
 
 ## Reading paths
 
-**Skim (10 minutes).** Read this README. Skim [docs/01-philosophy.md](docs/01-philosophy.md) and [docs/05-cognitive-cycle.md](docs/05-cognitive-cycle.md). You will know whether this is worth adopting.
+**Skim (10 minutes).** Read this README. Skim [docs/01-philosophy.md](docs/01-philosophy.md) and [docs/05-cognitive-cycle.md](docs/05-cognitive-cycle.md). If you are comparing collabMEM against other memory tools, read [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md) as well. You will know whether this is worth adopting.
 
 **Adopt (60 minutes).** Read in order: [01-philosophy](docs/01-philosophy.md), [03-architecture](docs/03-architecture.md), [04-asset-taxonomy](docs/04-asset-taxonomy.md), [05-cognitive-cycle](docs/05-cognitive-cycle.md), [10-transparency-mutability](docs/10-transparency-mutability.md), [11-implementation-notes](docs/11-implementation-notes.md). You will have enough to design your implementation.
 
