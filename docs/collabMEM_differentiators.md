@@ -73,6 +73,8 @@ This is what "memory that works" actually means: not a database you bolt on, but
 
 The market for LLM memory tools has grown quickly. Here is an honest account of where the differences lie.
 
+**NOTE:** There is a second document that [compares collabMEM to Karpathy's LLM Wiki](collabMEM_vs_Karpathy_wiki.md) solution for an individuals' knowledge graph vs for LLM harness applications, and how they can be combined for an even more robust solution.
+
 ---
 
 ### Mem0

@@ -128,6 +128,8 @@ It makes the case that memory is **an architecture problem, not a retrieval prob
 
 If you are comparing options, start there; if you are already convinced, you can skip it and move on to the architectural chapters.
 
+**NOTE:** There is a second document that [compares collabMEM to Karpathy's LLM Wiki](docs/collabMEM_vs_Karpathy_wiki.md) solution for an individuals' knowledge graph vs for LLM harness applications, and how they can be combined for an even more robust solution.
+
 ## Inspired by biology
 
 The terminology in these docs is borrowed from cognitive neuroscience. The words are chosen because the analogies hold usefully, not because the system claims biological equivalence.
