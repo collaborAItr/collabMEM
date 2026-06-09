@@ -79,6 +79,12 @@ Vaults enforce:
 
 Associations between engrams in different scopes are a design question. The safe default: **associations stay within a scope.** Cross-scope edges require deliberate design work to avoid leakage (for example, a workspace-scoped engram that is `depends_on` a user-scoped engram means the workspace can now indirectly learn the user's personal preference — maybe acceptable, maybe not).
 
+### Cross-conversation continuity
+
+The reference implementation stores every engram and association with `scope` plus `scopeId`, indexed as `(scope, scope_id)` and `(scope, scope_id, state)`. Activation builds a scope chain from the current conversation, optional project, optional workspace, and authenticated user id, then queries each scope and merges candidates before scoring. Conversation-scoped rows are the default write target; promotion moves high-utility or repeated-memory rows to project/workspace scope as `pending` so the user can approve cross-conversation reuse.
+
+When cloud sync is enabled, push batches include `scope`, `scope_id`, and `promotion_history`. Pull uses a bounded scope-chain endpoint that returns only rows matching the caller's scope filters, preserving the same leakage boundary in Postgres that local activation enforces in IndexedDB.
+
 ---
 
 ## Activity and audit history
@@ -177,6 +183,77 @@ Memory grows. A long-running chat app will accumulate thousands of engrams per u
 - **Hard delete.** Remove from the store entirely. This is what "delete my data" triggers.
 
 Cold storage (for example, moving very old salient digests to a cheaper tier) is an implementation optimization, not an architectural requirement.
+
+### Decay and forgetting
+
+Memory that is never used must fade. Otherwise a long-running vault
+accumulates weakly-relevant engrams that bloat every activation pass and
+inflate the token budget required to cover the long tail. The store must
+support two decay operations:
+
+- **Auto-archival sweep** for engrams that have been unused for a long
+  window, have low utility, and are not user-pinned. These transition to
+  `state: 'archived'` and are excluded from normal activation (but remain
+  inspectable and explicitly restorable).
+- **Association weight decay** for edges that have not been co-activated
+  recently. Weights multiply by a per-week decay factor until they hit a
+  floor; once below a dormancy threshold, the weight is pinned at the
+  floor and the edge contributes no meaningful Hebbian boost.
+
+Two invariants on the decay pass:
+
+1. **User pins are immune.** Pinned engrams never auto-archive.
+2. **Semantic edges are immune.** Associations with relationship types
+   `contradicts` or `supersedes` never decay — their semantic meaning is
+   preserved indefinitely because their _existence_ is more informative
+   than their _weight_.
+
+> **Reference implementation (Phase A.4).** `MaintenanceSweeper.ts`
+> implements both operations. Defaults: archive after 60 days of inactivity
+> with utility < 0.3 and access_count ≤ 0; association weight decays by a
+> factor of 0.98 per week after 30 days of inactivity with a floor of 0.05;
+> any edge whose decayed weight would drop below 0.1 is pinned at the floor
+> (dormant). The sweep is throttled to once per 24 hours via a
+> `localStorage` timestamp; private-mode browsers fall back to an
+> in-memory per-session dedupe so the sweep still runs at most once per
+> session. Sweep completions surface in the Memory Inspector Activity tab
+> so users can observe the system "forget" over time.
+
+### Sensitive data filtering
+
+The store's persistence boundary is the last line of defense against
+letting credentials, medical details, or financial identifiers leak into
+a long-lived memory that later gets injected into every assistant prompt.
+Two policies run **before** any proposed engram reaches the store:
+
+1. **auto_redact** — regex-detects high-confidence patterns (credit cards
+   with a Luhn check, SSNs, JWTs, common API-key prefixes, AWS access
+   keys, bearer tokens) and replaces matches with `[REDACTED:type]`
+   markers. Redaction metadata (`types`, `count`) is persisted on the
+   engram.
+2. **flag_for_review** — tags engrams whose category is health or finance,
+   or whose content matches medical/financial keywords, as pending review.
+   Flagged engrams land in `state: 'pending'` and are surfaced via the
+   Pending tab in the Memory Inspector (chapter 10). The user must
+   explicitly approve or reject them before they participate in
+   activation.
+
+Both policies are auditable: redaction counts and types are persisted per
+extraction log entry, and every flagged engram retains its
+`redactionApplied` metadata for inspection after the fact.
+
+> **Reference implementation (Phase A.8).**
+> `backend/src/services/collabmem/SensitiveDataFilter.ts` implements both
+> policies as pure functions. `InboardExtractionService.extract` applies
+> them to every `ProposedEngramV2` returned by the inboard LLM before
+> `ConsensusEngine.merge` runs. The filter is intentionally optimistic
+> (reduce false negatives over false positives): credit-card-shaped digit
+> runs are Luhn-validated before redaction to avoid eating timestamps or
+> phone numbers, but keyword-based review flagging errs on the side of
+> routing borderline cases through the Pending queue. Redaction counters
+> are logged to `mem_extraction_log.redaction_count`,
+> `mem_extraction_log.redaction_types`, and
+> `mem_extraction_log.flagged_for_review_count`.
 
 ---
 

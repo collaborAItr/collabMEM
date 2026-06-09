@@ -305,7 +305,42 @@ Treat all of these as **products in their own right**, with owners, metrics, and
 
 ---
 
+## Phase B observability surfaces
+
+### Activation events (A.6)
+
+Activation events are persisted in Dexie at `activationEvents` (v5) and mirrored to Postgres `mem_activation_events`. The local table is the single writer; the server row is immutable on insert (`ON CONFLICT (id) DO NOTHING`). Each row carries the full candidate ledger, not just the surviving subset, so the Memory Inspector "why was this NOT included?" goal can be served without re-running scoring.
+
+The B.7 retry queue (`extractionRetryQueue` in Dexie, `mem_extraction_retry_queue` in Postgres) is pre-allocated as part of the v4 → v5 bump so Phase E does not burn another Dexie schema migration.
+
+### Compression metrics (A.9)
+
+`compressPromptText` returns `{ text, rawTokens, compressedTokens, savedTokens, ratio }`. The Payload Inspector renders a per-turn `CompressionRibbon` (raw → compressed → saved) and a per-conversation cumulative footer with aggregate savings across captured turns. The `CompressionEvalSuite` replays a held-out fixture corpus through the compressor and reports compression ratio plus optional downstream answer-quality scores (gated by an injected `callExtractor` to avoid LLM spend in CI).
+
+### Model-aware budget (A.11)
+
+`PayloadBuilder.assemble` derives its `tokenBudget` from the active model's context window: `clamp(0.25 * contextSize, 4_000, 50_000)`. The 0.25 ratio with a 50k ceiling avoids the trap of collapsing every frontier-context model to a single fixed budget — 128k models get 32k of memory, 200k models hit the 50k cap. An explicit `tokenBudget` option always overrides the derived value.
+
+The model registry lives at `backend/src/services/llm/modelRegistry.ts` (and a parallel `frontend/src/services/llm/modelRegistry.ts` for the chat hot path) and exports `resolveModelContextSize(modelId)`. Provider-reported `usage.prompt_tokens` is captured in `InboardExtractionService.extract` and persisted into `mem_extraction_log.prompt_tokens_actual` so the prompt-flatness SLO can compare derived budget vs. consumed budget per turn.
+
+### Prompt-size SLO dashboard (C.7)
+
+An admin-only dashboard at `/gmode/prompt-budget` (backend `GET /api/admin/prompt-budget/metrics`) plots `assembledMemoryTokens` and `promptTokensActual` per turn from `mem_activation_events`, joined with the matching extraction-log row for compression context. The dashboard fires a slope alert when the linear-regression slope over the last 50 turns exceeds 30 tokens/turn — the production surface for the prompt-flatness invariant defined in chapter 09.
+
+---
+
 ## What to read next
 
 - [glossary.md](glossary.md) — the terminology reference
 - Return to any chapter that affected a design decision you are working through.
+
+---
+
+## Phase E schema/type notes
+
+Phase E introduces a shared `collabMEM` type surface under `collaborAItrApp/shared/types/collabmem` and a versioned migration contract (`SCHEMA_MIGRATIONS.md`).
+
+- Public row types now carry `schemaVersion` and `deletedAt` fields.
+- Frontend pull/apply path (`LocalCognitiveMemory.migrateRow`) and backend pull/export path (`CloudSyncService.migrateRow`) are responsible for monotonic migrations.
+- Type path aliases (`@collabmem-types`) are available in frontend and backend TypeScript configs to reduce drift between local mirrors and canonical shared definitions.
+- The deferred `mem_concept_canonical.vault_id` cleanup is included in the Phase E SQL block and should be run only after scope-based readers are verified in production.

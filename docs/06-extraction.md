@@ -214,6 +214,27 @@ Multi-producer extraction is only meaningful when there are actually multiple pr
 
 ---
 
+## Active learning from user corrections
+
+The Memory Inspector exposes an "Improve extraction" surface: low-quality extractions (those whose self-reported `extractionQuality` falls below a threshold, or that the user flags directly) appear in a side-by-side editor where the user corrects the proposed engrams and DataTags. Corrections persist as their own first-class asset (see [Extractor Corrections](04-asset-taxonomy.md#11-extractor-corrections-optional--active-learning)).
+
+### Why this is part of extraction, not reconciliation
+
+A correction is a label on the *extractor*'s behavior, not on a memory's truth-value. Reconciliation handles the latter (contradictions, dedup, supersession) and operates on engrams that already exist. Active learning is upstream: it changes what the extractor proposes in the first place.
+
+### How corrections re-enter the loop
+
+The next extraction pass injects the most recent N corrections (a small handful — three is a sane default) as few-shot examples in the cognitive-extraction prompt. Each example shows the model the original `(userMessage, modelResponse, originalExtraction)` tuple alongside the user's `correctedExtraction`, so the model can see both the mistake and the fix. The DataTag prompt is intentionally **not** corrected this way — see chapter 06 for the sentiment-source invariant: DataTag classification should remain a pure function of the model's response text, free of episodic re-labeling.
+
+### Boundaries
+
+- **Corrections are advisory, not authoritative.** A few-shot example can shift extractor behavior; it cannot guarantee it. Treat the corrections corpus as feedback signal, not as a rule engine.
+- **Bounded recency, bounded count.** Don't dump the entire corrections history into every prompt — token cost grows linearly and old corrections become noise as the user's preferences drift. A small recent window keeps the loop honest.
+- **No silent overwrite.** A correction must never silently rewrite engrams that were created from the original extraction. The original engrams remain in their existing state; only the *next* extraction sees the correction.
+- **Sentiment-source invariant.** Corrections that violate the rule "DataTag sentiment derives from model response, not user statement" are rejected at write time. The active-learning loop must not be the back door that breaks an architectural invariant.
+
+---
+
 ## Pitfalls
 
 - **Running extraction on the chat-model context.** Extraction should see only the user message and the assistant response, not the full chat history. Full history is not needed and increases cost.

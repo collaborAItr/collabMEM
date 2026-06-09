@@ -289,3 +289,14 @@ Three classical sources ground the core reconciliation mechanics. For the broade
 - **Fellegi, I. P., & Sunter, A. B. (1969).** A Theory for Record Linkage. *Journal of the American Statistical Association,* 64(328), 1183–1210. DOI: [10.1080/01621459.1969.10501049](https://doi.org/10.1080/01621459.1969.10501049). — *Foundational theory for the deduplication / "grouping proposals" step (normalize, compute similarity, group above threshold, pick representative).*
 - **Condorcet, M. de. (1785).** *Essai sur l'application de l'analyse à la probabilité des décisions rendues à la pluralité des voix.* Paris: Imprimerie Royale. — *Condorcet's Jury Theorem: if each independent producer is more likely than chance to be correct, majority agreement across producers is more likely still to be correct. The probabilistic basis for Mode 5 (multi-producer agreement) — and for the caveat that shared bias collapses the theorem's independence assumption.*
 - **Dietterich, T. G. (2000).** Ensemble methods in machine learning. In *Multiple Classifier Systems* (Lecture Notes in Computer Science, Vol. 1857, pp. 1–15). Springer. DOI: [10.1007/3-540-45014-9_1](https://doi.org/10.1007/3-540-45014-9_1). — *Modern formalization of ensembling over diverse producers; grounds Mode 6 (ensembled same-model agreement) and clarifies why ensembling the same model yields weaker gains than ensembling diverse models.*
+
+---
+
+## Phase E reconciliation upgrades
+
+Phase E adds a stricter reconciliation envelope:
+
+- **Mode 1 + 3 hardening.** Proposals are validated before merge; rejected proposals are logged with reason counters in `mem_extraction_log`. Contradictions are persisted with stable ids and can be user-resolved through `mem_contradiction_resolutions`.
+- **Mode 2 + 6 execution paths.** Optional verifier pass (`ENABLE_VERIFIER_PASS`) and optional ensemble extraction (`ENABLE_ENSEMBLE_EXTRACTION`) run as explicit gates around extraction. Verifier model selection excludes active primary models and falls back to cheapest available candidates.
+- **Consensus quality fields.** `agreementRatio`, `extractionConfidence`, `groupingMethod`, `groupingScore`, and `alternatives` are emitted per consensus item so auto-approval and UI review decisions can be grounded in explainable signals.
+- **Embedding-assisted grouping.** Concept grouping now prefers cosine similarity when vectors are available, with lexical fallback only when embeddings are absent or below threshold.

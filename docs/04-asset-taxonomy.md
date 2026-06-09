@@ -32,6 +32,13 @@ type Engram = {
   lastAccessAt: string;     // ISO-8601
   tags?: string[];
   scope: "user" | "workspace" | "project" | "conversation";
+  scopeId: string;
+  promotionHistory?: Array<{
+    fromScope: "user" | "workspace" | "project" | "conversation";
+    toScope: "user" | "workspace" | "project" | "conversation";
+    promotedAt: string;
+    reason: "access_count" | "utility" | "cross_conversation" | "manual";
+  }>;
   provenance: {
     conversationId?: string;
     turnNumber?: number;
@@ -56,6 +63,8 @@ type Engram = {
 ### Visibility
 
 Every engram must be visible to the user in the [Memory Inspector](10-transparency-mutability.md), with full provenance, current state, confidence, and utility.
+
+Every engram has a `scope` (`user | workspace | project | conversation`) and a `scopeId`. Activation queries scopes in order from narrowest (conversation) to widest (user) and merges results. Conversation-scoped memory is auto-stored. Project/workspace promotion requires either repeated observations or strong utility/access signals, and lands in `state: "pending"` for user approval. User-level memory requires explicit user approval. Promotion history is preserved per engram.
 
 ---
 
@@ -247,7 +256,131 @@ Consensus reports are presented in the Memory Inspector as their own tab. For ea
 
 ---
 
+## 7. Episodes *(optional — temporal-episodic units)*
+
+A bounded, multi-turn span representing a single topic the user worked through with the assistant. Episodes are aggregates **over** salient digests and engrams; they don't replace either, they index them temporally.
+
+### Purpose
+
+Episodes answer "**when** did we work on X?" and "what was the chunk of conversation around the auth-bug fix?" — a class of question that purely semantic activation can't answer well because there's no engram whose content is "we spent Tuesday morning on auth." The information lives in the *shape* of the conversation, not in any individual statement.
+
+They are also the natural unit for retrospectives and for surfacing temporally-coherent context blocks ("here's the 7-turn span where you settled on the cloud-deployment approach") rather than a scattered set of engrams.
+
+### Schema sketch
+
+```typescript
+type Episode = {
+  id: string;
+  scope: "user" | "workspace" | "project" | "conversation";
+  scopeId: string;
+  conversationId: string;
+  startTurn: number;
+  endTurn: number;
+  startedAt: string;       // ISO-8601
+  endedAt: string;
+  title: string;           // generated from the digest topics in the span
+  summary: string;
+  engramIds: string[];     // engrams that landed during this span
+  digestIds: string[];     // salient digests that compose the span
+  topicTags?: string[];
+};
+```
+
+### Lifecycle
+
+- **Created by**: a closure detector that runs over the digest stream. Boundaries fire on three signals: consecutive-digest cosine drop above a threshold (semantic shift), explicit user signals like "ok new topic" (lexical shift), or idle gaps beyond a threshold (temporal shift).
+- **Updated by**: nothing in steady state — episodes are immutable once closed. A reopen path exists for the user to manually merge two adjacent episodes if the auto-closure was wrong.
+- **Ends at**: closure. There is no archive — episodes are append-only history.
+
+### Visibility
+
+Surfaced as a navigable timeline in the Memory Inspector and used by retrieval for queries the activation layer classifies as *temporal* (e.g. "last week", "earlier today", "when did we…"). An activated episode contributes its `engramIds` as a contiguous context block rather than as scattered cards.
+
+---
+
+## 8. Procedures *(optional — procedural memory / "skills")*
+
+A reusable, sequenced workflow — the procedural counterpart to declarative engrams. Procedures encode "how to do X with this user" rather than "what the user thinks about X."
+
+### Purpose
+
+Some things the assistant should do are sequences, not facts: "when the user says 'ship it,' run the test suite, check for type errors, then open a PR with the standard template." That sequence is reusable, has trigger conditions, and benefits from being matched and surfaced rather than re-derived from scattered engrams.
+
+### Schema sketch
+
+```typescript
+type Procedure = {
+  id: string;
+  scope: "user" | "workspace" | "project" | "conversation";
+  scopeId: string;
+  title: string;
+  triggerPatterns: string[];  // intent phrases that should activate the procedure
+  steps: Array<{ order: number; description: string; tool?: string }>;
+  parameters?: Record<string, { type: string; default?: unknown }>;
+  examples?: string[];
+  sourceProvenance: {
+    origin: "auto_proposed" | "manual";
+    derivedFromConversationIds?: string[];
+  };
+  state: "pending" | "active" | "rejected" | "archived";
+  approvedByUser?: boolean;
+  invocationCount: number;
+  lastInvokedAt?: string;
+  utilityScore: number;
+};
+```
+
+### Lifecycle
+
+- **Created by**: auto-proposal from repeated multi-step exchanges in the digest history, or by manual creation in the Memory Inspector.
+- **Updated by**: invocation tracking (count, last-invoked-at), user edits to the steps, and utility re-scoring based on whether invocations led to good outcomes.
+- **Ends at**: `state: "archived"` for stale procedures, `"rejected"` for proposals the user declined.
+
+### Visibility
+
+The Memory Inspector exposes a Procedures tab grouped by state. Pending proposals carry a clear approve/reject affordance; active procedures show their last invocation timestamp and a count. Activated procedures inject a `PROCEDURE_MATCH` block into the system prompt so the model can follow the sequence directly.
+
+---
+
+## 9. Consolidation Proposals *(optional — background "dreaming")*
+
+Idle-time clusterings of related engrams into proposed macro-facts or redundant-collapse merges. See [chapter 14](14-consolidation.md) for the full pipeline.
+
+```typescript
+type ConsolidationProposal = {
+  id: string;
+  scope: "user" | "workspace" | "project" | "conversation";
+  scopeId: string;
+  kind: "macro_fact" | "redundant_collapse";
+  status: "pending" | "accepted" | "rejected";
+  sourceEngramIds: string[];
+  proposedConcept: string;
+  proposedContent: string;
+  rationale: string;
+  createdAt: string;
+  resolvedAt?: string;
+};
+```
+
+Consolidation proposals are *suggestions to the user*, not memory in their own right. Accepted proposals materialize as new engrams (with the source engrams archived); rejected proposals are dismissed without changing the engram graph.
+
+---
+
+## 10. Workspace DataBANK Aggregates *(optional — federated)*
+
+Cross-member rollups of personal sentiment data within a workspace. See [chapter 15](15-federated-databank.md) for the aggregation policy.
+
+---
+
+## 11. Extractor Corrections *(optional — active learning)*
+
+User-authored corrections to specific extractions, replayed as few-shot examples on subsequent extraction passes. See [chapter 06 §Active learning](06-extraction.md).
+
+---
+
 ## 6. Extraction Log *(optional — operational telemetry)*
+
+> Numbering note: chapter ordering for §§ 7–11 reflects when the asset types were added to the taxonomy. The Extraction Log retains its original §6 number so existing cross-references and anchor slugs (`#6-extraction-log-...`) continue to resolve.
 
 Per-extraction-run telemetry. Records what happened during an extraction attempt.
 
