@@ -1,4 +1,4 @@
-# collabMEM
+# collabMEM&trade;
 
 **An open architecture for cognitive memory in LLM chat applications.**
 
@@ -10,7 +10,7 @@
 
 ## What this is
 
-collabMEM is a set of architectural documents that describe how to build a **cognitive memory layer** alongside an LLM chat application. A cognitive memory layer is the part of a chat app that:
+collabMEM&trade; is a set of architectural documents that describe how to build a **cognitive memory layer** alongside an LLM chat application. A cognitive memory layer is the part of a chat app that:
 
 - observes each conversation turn
 - extracts structured, typed memory from it
@@ -27,7 +27,7 @@ The architecture applies equally to:
 
 It is deliberately **model-agnostic, storage-agnostic, and framework-agnostic**. The decisions that matter are the loop itself and the shapes of the memory it creates — not which database, which model provider, or which UI framework you use.
 
-## Why collabMEM exists
+## Why collabMEM&trade; exists
 
 The default answer to "how do I optimize memory for my LLM chat app?" has become "use models with a bigger context window" or "retrieve chunks from a vector DB" or "use Karpathy's Obsidian-based wiki." Unfortunately, none of those is actual "memory" in the sense of an LLM autonomously learning from conversations and updating itself. In Karpathy's wiki solution, it's better described as a **structured, LLM-curated external knowledge store** — closer to a smart personal wiki than to persistent model memory.
 
@@ -42,9 +42,9 @@ Every modern LLM chat app faces the same failure mode. As a conversation grows, 
 
 "Use a bigger context window" defers these costs. It does not solve them.
 
-### What collabMEM does differently
+### What collabMEM&trade; does differently
 
-collabMEM's **primary purpose** is to **reduce context-window strain**. Instead of stacking turns, the system:
+collabMEM&trade;'s **primary purpose** is to **reduce context-window strain**. Instead of stacking turns, the system:
 
 - extracts structured memory from each turn and persists it outside the prompt
 - replaces verbatim turn history with compact **salient digests**
@@ -66,7 +66,7 @@ Memory is:
 - **reinforcing** — use strengthens, disuse weakens
 - **external to the context window** — stored in its own store, injected selectively, never replacing itself with an ever-growing transcript
 
-collabMEM documents an architecture that treats memory this way. It was originally developed as the cognitive layer of [collaborAItr](https://www.collaboraitr.com), a multi-model parallel chat application, specifically because the multi-model case magnifies the context-window problem: N models running in parallel each need context, and stacking turns into each of them scales multiplicatively. This repository documents the **architecture** abstracted from that implementation, in a form any team can adapt.
+collabMEM&trade; documents an architecture that treats memory this way. It was originally developed as the cognitive layer of [collaborAItr](https://www.collaboraitr.com), a multi-model parallel chat application, specifically because the multi-model case magnifies the context-window problem: N models running in parallel each need context, and stacking turns into each of them scales multiplicatively. This repository documents the **architecture** abstracted from that implementation, in a form any team can adapt.
 
 ## What you get
 
@@ -115,20 +115,20 @@ A complete, opinionated set of principles about local-first storage, user-owned 
 - LLM coding assistants being asked to implement a memory layer — these docs are written to be loadable as context and unambiguous when quoted.
 - Anyone designing a multi-agent system who wants structured, user-inspectable memory rather than a shared vector blob.
 
-## How collabMEM compares to other memory tools
+## How collabMEM&trade; compares to other memory tools
 
-If you are evaluating collabMEM against the widely-adopted memory tools in the ecosystem — Mem0, Zep / Graphiti, Letta (formerly MemGPT), Cognee, or LangMem — a standalone companion document, [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md), walks through each comparison in detail and is worth reading before adoption.
+If you are evaluating collabMEM&trade; against the widely-adopted memory tools in the ecosystem — Mem0, Zep / Graphiti, Letta (formerly MemGPT), Cognee, or LangMem — a standalone companion document, [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md), walks through each comparison in detail and is worth reading before adoption.
 
 It makes the case that memory is **an architecture problem, not a retrieval problem**, and covers:
 
 - A deep dive on the **salient digest** — the compression mechanism that holds the prompt at a stable token ceiling regardless of conversation length, so a chat at turn 100 sends the model roughly the same amount of context as a chat at turn 10
-- Honest, side-by-side comparisons against each of the five tools above, including where each of them is the better choice and the specific gaps collabMEM was designed to close
+- Honest, side-by-side comparisons against each of the five tools above, including where each of them is the better choice and the specific gaps collabMEM&trade; was designed to close
 - A feature-matrix table covering thirteen architectural properties — salient-digest compression, stable context ceiling, typed engrams, Hebbian reinforcement, Bayesian confidence updating, multi-model reconciliation, first-class inspection surfaces, provenance, model- and framework-agnosticism, and local-first storage
-- The honest tradeoff — collabMEM gives you the design, not a deployable system, and is not the right choice if your only goal is shipping a simple single-session chatbot in the next two weeks
+- The honest tradeoff — collabMEM&trade; gives you the design, not a deployable system, and is not the right choice if your only goal is shipping a simple single-session chatbot in the next two weeks
 
 If you are comparing options, start there; if you are already convinced, you can skip it and move on to the architectural chapters.
 
-**NOTE:** There is a second document that [compares collabMEM to Karpathy's LLM Wiki](docs/collabMEM_vs_Karpathy_wiki.md) solution for an individuals' knowledge graph vs for LLM harness applications, and how they can be combined for an even more robust solution.
+**NOTE:** There is a second document that [compares collabMEM&trade; to Karpathy's LLM Wiki](docs/collabMEM_vs_Karpathy_wiki.md) solution for an individuals' knowledge graph vs for LLM harness applications, and how they can be combined for an even more robust solution.
 
 ## Inspired by biology
 
@@ -159,13 +159,18 @@ For the full biological framing and how it maps to every field in the architectu
 | 09  | [docs/09-retrieval-activation.md](docs/09-retrieval-activation.md)       | How memory comes back into future prompts                              |
 | 10  | [docs/10-transparency-mutability.md](docs/10-transparency-mutability.md) | Inspection and user-controlled mutation as first-class features        |
 | 11  | [docs/11-implementation-notes.md](docs/11-implementation-notes.md)       | Trade-offs, tuning knobs, pitfalls, evaluation                         |
-| -   | [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md)   | How collabMEM compares to Mem0, Zep, Letta, Cognee, and LangMem        |
+| 12  | [docs/12-sync-and-trust.md](docs/12-sync-and-trust.md)                   | Local-first sync, conflict resolution, and the trust contract          |
+| 13  | [docs/13-evaluation.md](docs/13-evaluation.md)                           | Evaluating a cognitive memory layer end-to-end                         |
+| 14  | [docs/14-consolidation.md](docs/14-consolidation.md)                     | Background "dreaming": idle-time clustering into proposed macro-facts  |
+| 15  | [docs/15-federated-databank.md](docs/15-federated-databank.md)           | Workspace-level sentiment rollups with Bayesian shrinkage              |
+| 16  | [docs/16-connectors.md](docs/16-connectors.md)                           | Source-channel adapters for non-chat inputs (files, calendar, email)   |
+| -   | [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md)   | How collabMEM&trade; compares to Mem0, Zep, Letta, Cognee, and LangMem        |
 | -   | [docs/glossary.md](docs/glossary.md)                                     | Terms used throughout the docs                                         |
 
 
 ## Reading paths
 
-**Skim (10 minutes).** Read this README. Skim [docs/01-philosophy.md](docs/01-philosophy.md) and [docs/05-cognitive-cycle.md](docs/05-cognitive-cycle.md). If you are comparing collabMEM against other memory tools, read [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md) as well. You will know whether this is worth adopting.
+**Skim (10 minutes).** Read this README. Skim [docs/01-philosophy.md](docs/01-philosophy.md) and [docs/05-cognitive-cycle.md](docs/05-cognitive-cycle.md). If you are comparing collabMEM&trade; against other memory tools, read [docs/collabMEM_differentiators.md](docs/collabMEM_differentiators.md) as well. You will know whether this is worth adopting.
 
 **Adopt (60 minutes).** Read in order: [01-philosophy](docs/01-philosophy.md), [03-architecture](docs/03-architecture.md), [04-asset-taxonomy](docs/04-asset-taxonomy.md), [05-cognitive-cycle](docs/05-cognitive-cycle.md), [10-transparency-mutability](docs/10-transparency-mutability.md), [11-implementation-notes](docs/11-implementation-notes.md). You will have enough to design your implementation.
 
@@ -183,25 +188,25 @@ For the full biological framing and how it maps to every field in the architectu
 
 ## Relationship to collaborAItr
 
-The reference implementation of collabMEM is the cognitive layer of [collaborAItr](https://www.collaboraitr.com). Public-facing documentation of that implementation lives at [collaboraitr.com/collabMEM/](https://www.collaboraitr.com/collabMEM/).
+The reference implementation of collabMEM&trade; is the cognitive layer of [collaborAItr](https://www.collaboraitr.com). Public-facing documentation of that implementation lives at [collaboraitr.com/collabMEM/](https://www.collaboraitr.com/collabMEM/).
 
 This repository is **abstracted** from that implementation. Specifics that are proprietary to collaborAItr — the exact extraction prompt, tuned thresholds, model identifiers, and certain assets that are not architectural — are not published here. The architecture is.
 
 ## Attribution and influences
 
-collabMEM's design was informed by prior long-standing work in the cognitive-memory and knowledge-graph spaces.
+collabMEM&trade;'s design was informed by prior long-standing work in the cognitive-memory and knowledge-graph spaces.
 
-The primary sources for each of the techniques below are classical publications in cognitive science, knowledge representation, and information retrieval — in several cases dating back more than a century. collabMEM rests on that public prior art. Two contemporary open projects — MuninnDB and Cognee — are acknowledged as general design inspirations because they surfaced useful combinations of these classical techniques in the modern memory-system context. **Neither project is integrated into collabMEM, and no source code, documentation text, prompt text, or schema from either project has been copied or adapted.** See [NOTICE](NOTICE) for the full independent-implementation statement.
+The primary sources for each of the techniques below are classical publications in cognitive science, knowledge representation, and information retrieval — in several cases dating back more than a century. collabMEM&trade; rests on that public prior art. Two contemporary open projects — MuninnDB and Cognee — are acknowledged as general design inspirations because they surfaced useful combinations of these classical techniques in the modern memory-system context. **Neither project is integrated into collabMEM&trade;, and no source code, documentation text, prompt text, or schema from either project has been copied or adapted.** See [NOTICE](NOTICE) for the full independent-implementation statement.
 
 ### Cognitive scoring and reinforcement
 
 Three techniques that form the core retrieval and activation pipeline for engrams, ensuring recently-accessed and frequently-used memories surface contextually:
 
 1. **The cognitive scoring foundation — engrams and ACT-R temporal priority.** Engrams as durable, reinforceable traces trace to Richard Semon's *Die Mneme* (1904). ACT-R style temporal / recency-based activation traces to John R. Anderson's ACT-R framework (CMU, 1976 onward; see *The Atomic Components of Thought*, 1998).
-2. **Hebbian association weights.** Donald Hebb, *The Organization of Behavior* (1949): "neurons that fire together wire together." collabMEM applies this as co-activation-driven weight reinforcement on typed edges between engrams.
+2. **Hebbian association weights.** Donald Hebb, *The Organization of Behavior* (1949): "neurons that fire together wire together." collabMEM&trade; applies this as co-activation-driven weight reinforcement on typed edges between engrams.
 3. **Bayesian confidence reinforcement.** Classical Bayesian updating, from Thomas Bayes (1763) and Laplace (1774) onward. Confidence on an engram is updated as new evidence corroborates or contradicts it.
 
-Surfaced in contemporary memory-systems form by [MuninnDB](https://github.com/scrypster/muninndb) (source-available; see its own license for its terms). collabMEM's treatment is an independent reimplementation of the underlying classical techniques.
+Surfaced in contemporary memory-systems form by [MuninnDB](https://github.com/scrypster/muninndb) (source-available; see its own license for its terms). collabMEM&trade;'s treatment is an independent reimplementation of the underlying classical techniques.
 
 ### Knowledge-graph and retrieval refinements
 
@@ -213,11 +218,11 @@ Five techniques drawn from standard practice in knowledge representation and inf
 4. **Feedback-weighted retrieval where memories learn their own utility.** Relevance feedback in information retrieval; Rocchio, "Relevance Feedback in Information Retrieval" (1971).
 5. **Temporal range queries for time-aware memory navigation.** Standard temporal-database practice; Snodgrass and Ahn, "Temporal Databases," *IEEE Computer* (1986).
 
-Surfaced in contemporary memory-systems form by [Cognee](https://github.com/topoteretes/cognee) (Apache License 2.0). collabMEM's treatment is an independent reimplementation of the underlying standard techniques.
+Surfaced in contemporary memory-systems form by [Cognee](https://github.com/topoteretes/cognee) (Apache License 2.0). collabMEM&trade;'s treatment is an independent reimplementation of the underlying standard techniques.
 
 ### Synthesis
 
-collabMEM synthesizes these classical techniques into a unified system optimized for real-time conversations (single-model, multi-model, and multi-agent), adding inboard extraction consensus and local-first privacy — contributions that are original to collabMEM.
+collabMEM&trade; synthesizes these classical techniques into a unified system optimized for real-time conversations (single-model, multi-model, and multi-agent), adding inboard extraction consensus and local-first privacy — contributions that are original to collabMEM&trade;.
 
 ### Academic references
 

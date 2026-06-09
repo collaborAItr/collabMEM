@@ -1,18 +1,18 @@
-collabMEM — NOTICE
+collabMEM&trade; — NOTICE
 Copyright (c) 2026 collaborAItr
 
 ================================================================================
 INDEPENDENT IMPLEMENTATION STATEMENT
 ================================================================================
 
-collabMEM, and the collaborAItr cognitive memory layer that serves as its
+collabMEM&trade;, and the collaborAItr cognitive memory layer that serves as its
 reference implementation, were designed and implemented independently.
 
 No source code, documentation text, prompt text, schema definitions,
 configuration values, test fixtures, or other copyrightable material from
 MuninnDB (https://github.com/scrypster/muninndb) or from Cognee
 (https://github.com/topoteretes/cognee) was copied, adapted, translated, or
-otherwise incorporated during the design or implementation of collabMEM.
+otherwise incorporated during the design or implementation of collabMEM&trade;.
 
 All types, interfaces, database schemas, storage layers, extraction prompts,
 reconciliation logic, activation pipelines, and user-facing inspection
@@ -42,7 +42,7 @@ concepts cited in that section — including but not limited to:
 
 are classical constructs from cognitive science, knowledge representation,
 and information retrieval that predate both MuninnDB and Cognee by decades,
-and in several cases by more than a century. collabMEM's use of these
+and in several cases by more than a century. collabMEM&trade;'s use of these
 concepts rests on that public, long-standing prior art and not on any
 proprietary contribution of MuninnDB or Cognee.
 
@@ -52,15 +52,15 @@ TRADEMARKS
 
 "MuninnDB" is a trademark of Scrypster / MJ Bonanno. "Cognee" and
 "Topoteretes" are marks of Topoteretes UG. References to those names in
-collabMEM documentation are nominative / comparative references only and do
+collabMEM&trade; documentation are nominative / comparative references only and do
 not imply endorsement, sponsorship, or any business relationship.
 
-"collabMEM" and "collaborAItr" are marks of collaborAItr.
+"collabMEM&trade;" and "collaborAItr" are marks of collaborAItr.
 
 --------------------------------------------------------------------------------
 LICENSE REFERENCE
 --------------------------------------------------------------------------------
 
-collabMEM documentation is dual-licensed; see LICENSE and COMMERCIAL-LICENSE.md
+collabMEM&trade; documentation is dual-licensed; see LICENSE and COMMERCIAL-LICENSE.md
 for terms. This NOTICE file is informational and does not modify either
 license.

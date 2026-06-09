@@ -1,6 +1,6 @@
 # Glossary
 
-Definitions for the terms used throughout the collabMEM architecture documentation. Terms are grouped by area. Cross-references link to the chapter where the term is developed in depth.
+Definitions for the terms used throughout the collabMEM&trade; architecture documentation. Terms are grouped by area. Cross-references link to the chapter where the term is developed in depth.
 
 ---
 

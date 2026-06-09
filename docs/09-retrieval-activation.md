@@ -79,13 +79,42 @@ Every active engram is scored on multiple axes. The final score is a weighted co
 
 ### Semantic (embedding) similarity
 
-Vector similarity on embeddings can be added as an additional axis when the product justifies the infrastructure cost. It is **not required** by this architecture. The text-match axis can handle short concept labels and content bodies without vector infrastructure for many products.
+Vector similarity on embeddings is one of the scoring axes, not the dominant signal. In the current implementation each engram (and each salient digest) carries a 384-dim L2-normalized vector produced locally by the `Xenova/all-MiniLM-L6-v2` Transformers.js pipeline at upsert time. The model is lazy-loaded on first activate, browser-cached after that, and a one-shot status pill in the Memory Inspector tells the user when it loads. Embeddings ride along on cloud sync as `vector(384)` columns indexed by an HNSW cosine index, ready for server-side semantic search later.
+
+At activation time the query is embedded **once per call**, then `cosineSimilarity(queryEmbedding, engram.embedding)` becomes the `vecScore` axis. Engrams without an embedding (legacy rows pre-backfill) score zero on the vec axis and rely on the other signals — the same behavior they had before semantic scoring shipped. A periodic backfill sweeper fills missing vectors in the background so the lexical-only fallback is a transient state, not a steady one.
+
+The default weights are rebalanced once a real semantic axis exists: lexical loses some weight to make room for cosine, while temporal, hebbian, and utility shed a little so the dynamic range stays comparable.
+
+| Axis     | Weight |
+|----------|--------|
+| ftsWeight (lexical / BM25-style) | 0.25 |
+| vecWeight (semantic cosine)      | 0.30 |
+| temporalWeight                   | 0.15 |
+| hebbianWeight                    | 0.15 |
+| utilityWeight                    | 0.15 |
 
 When used, embedding similarity is one axis among the others, not a replacement for them.
 
 ### A note on "author reputation"
 
 All stored memory carries equal structural weight regardless of which producer proposed it. Differences in trust come from confidence, utility, and provenance — not from any producer-level weighting.
+
+### Bounding the candidate pool
+
+Naive activation scores **every** active engram in the vault for every query. At small store sizes (under ~1,000 engrams) this is fine; cosine and lexical scoring are cheap. Above that size — and especially once vector cosine scoring lands — the O(N) loop becomes the dominant latency cost in the chat path.
+
+The fix is a two-stage selection. First, a **lexical prefilter** built on top of an in-memory inverted index (BM25 over `concept`, `content`, and `tags`) returns up to 200 candidate ids. Second, the existing scoring pass runs **only over those candidates**, leaving final-score math, weights, and the inclusion filter entirely unchanged. The prefilter is plumbing, not policy.
+
+Two safety nets keep the prefilter honest:
+
+- **Cold-start fallback.** When the index is empty (e.g. fresh app boot, before sync) the prefilter returns nothing; activation must fall back to a full vault scan or the user gets no memory at all on their first turn.
+- **Thin-match fallback.** When the prefilter returns fewer than ~50 candidates the fallback also engages, so a query whose tokens barely overlap with anything in the vault does not silently drop relevant memories.
+
+Pinned engrams are merged into the candidate pool unconditionally — the [user controls](#4-user-controls) pin-bypass must work even on queries with zero lexical overlap with the pinned content.
+
+The prefilter is rebuilt at app boot from the local store and kept in sync via every mutation path that changes engram visibility (upsert, suppress, unsuppress, archive, restore, pin, unpin, edit, approve, reject). It is **never persisted to disk** — it is process-local state, cheap to rebuild, and avoids a second source of truth.
+
+The Memory Inspector surfaces three diagnostic counters so this layer is observable from the same UI as the rest of activation: index size, last-activate candidate count, and whether the last call routed through the lexical path or the fallback.
 
 ---
 
@@ -118,6 +147,49 @@ flowchart TD
     TopN -.Pathway B.-> ReinforceEdges[Reinforce co-activated pairs]
     ReinforceEdges -.-> Store[(Store)]
 ```
+
+### Multi-hop spreading activation
+
+The Hebbian boost above is depth-1 — it only reaches engrams that are direct neighbors of a seed in the association graph. To honor the full Collins & Loftus (1975) spreading-activation model, after seed selection collabMEM&trade; runs a **bounded BFS** through the association graph from each seed and adds the result to the Hebbian axis.
+
+For each non-seed engram reached at depth `d` along edges of weight `w_1, w_2, ..., w_d`, the spreading boost is:
+
+> `boost_d = w_1 · w_2 · ... · w_d · γ^d`
+
+with damping `γ = 0.5` per hop. Two paths to the same engram resolve to the higher-boost one. The BFS is bounded by:
+
+- **Maximum depth: 3 hops.** Beyond that the damped contribution is negligible (γ³ = 0.125 before the per-edge weights even apply).
+- **Node cap: 50 engrams** propagated per turn. Stops a dense graph from ballooning the candidate pool.
+- **Edge type filter:** edges typed `contradicts` or `supersedes` do **not** propagate. Those are semantic-negation edges; propagating through them would boost the very engrams we just classified as wrong.
+
+The depth and full path are recorded in the activation event's score components and surfaced in the Payload Inspector ("activated at depth 2 via X → Y → Z"), so the user can inspect *why* a non-obvious memory fired even when no lexical or semantic axis matched it.
+
+### Entity resolution (hybrid BM25 + cosine)
+
+Activation operates over engrams that have already been merged or kept-separate by the entity resolver. Pre-B.3 the resolver was BM25-only and would silently merge `react native` with `react query` because they share a token. Once embeddings exist (B.1), the resolver upgrades to a **hybrid score**:
+
+> `composite = 0.6 · cosine(query, candidate.embedding) + 0.4 · BM25(query, candidate)`
+
+A merge requires BOTH gates:
+
+- **Cosine hard floor: ≥ 0.55.** This prevents lexical-only collisions from collapsing two distinct concepts. `react native` vs `react query` may produce a high BM25 (1 shared token out of 2) but their cosine is well below 0.55 once embeddings are in play.
+- **Composite threshold: ≥ 0.65.** A high cosine on its own is not enough — there must also be enough lexical alignment for the merge to be defensible.
+
+If both pass, the resolver writes the merge decision into `mem_concept_canonical` audit columns (`merge_reason`, `merge_score`, `cosine_score`, `bm25_score`) so the Memory Inspector can render a "merge log" row explaining *why* two proposals were collapsed. If the cosine floor passes but the composite doesn't, the resolver creates a new engram and records the reason as `lexical_only_below_threshold` with the failing scores attached — that audit trail is how reviewers spot near-misses worth manually merging later.
+
+The canonical-table cache short-circuits the hybrid pipeline whenever a `raw_concept → canonical` row already exists for the vault, so repeat proposals of the same canonical name never pay the embedding cost.
+
+### MMR diversity pruning
+
+Once embeddings exist, near-duplicates can dominate top-K — five paraphrases of the same fact crowding out one distinct relevant memory. Maximal Marginal Relevance (Carbonell & Goldstein, 1998) re-orders the top `2·maxResults` candidate pool to trade pure relevance for diversity:
+
+> `MMR(c) = λ · finalScore(c) − (1 − λ) · max_{s ∈ selected} cos(c, s)`
+
+With `λ = 0.7`, relevance dominates but a near-duplicate (cosine ≈ 1) of an already-selected engram pays a ~0.3 penalty. The user-facing top-K then carries one representative per cluster instead of N near-clones.
+
+When two engrams are within ε of each other on cosine (effectively the same memory in slightly different words), the representative is chosen by **userEdit > userPinned > higher confidence**. This keeps the surfaced top-K deterministic across runs even when the underlying scoring puts duplicates in different orders.
+
+MMR can be disabled per-activation via a `disableMmr` flag for evaluation isolation; production never sets it.
 
 ---
 
@@ -187,6 +259,16 @@ When a section overflows its slice of the budget, trim greedily from the lowest-
 ### Relevance floor
 
 Set a minimum score below which engrams are excluded entirely, even if budget remains. A weakly-relevant engram is worse than no engram — it dilutes context and works against the bounded-context purpose.
+
+> **Implementation note (Phase A.1).** The `relevanceFloor` property on every
+> engram is an **inclusion threshold**, not a score floor. An engram whose
+> computed activation score falls below its `relevanceFloor` is excluded from
+> the activation result entirely — never promoted up to the floor and
+> returned as a marginal hit. The only bypass is `userPinned === true`
+> (see chapter 10). This distinction is load-bearing: earlier drafts treated
+> the floor as `Math.max(score, floor)`, which silently promoted every
+> low-relevance engram into the top-K and defeated the bounded-context
+> purpose of the floor.
 
 ### What to do when good memory is available but the budget is full
 
@@ -314,6 +396,7 @@ sequenceDiagram
 This chapter draws on the richest cluster of prior work in the architecture. Each citation below grounds a specific mechanism in the activation pass. For the full bibliography covering all chapters, see the [README's Academic references section](../README.md#academic-references).
 
 - **Anderson, J. R., & Lebiere, C. (1998).** *The Atomic Components of Thought.* Mahwah, NJ: Lawrence Erlbaum Associates. ISBN 978-0805828177. Project page: [act-r.psy.cmu.edu](http://act-r.psy.cmu.edu/). — *Basis for the recency and temporal-proximity scoring axes, and for the terminological preference of "activation" over "retrieval" (§9's terminology note).*
+- **Carbonell, J., & Goldstein, J. (1998).** The use of MMR, diversity-based reranking for reordering documents and producing summaries. In *Proceedings of the 21st Annual International ACM SIGIR Conference,* 335–336. DOI: [10.1145/290941.291025](https://doi.org/10.1145/290941.291025). — *Source for the §3 MMR formulation that diversifies top-K activation, preventing near-duplicate engrams from crowding out distinct relevant memories.*
 - **Anderson, J. R., & Schooler, L. J. (1991).** Reflections of the environment in memory. *Psychological Science,* 2(6), 396–408. DOI: [10.1111/j.1467-9280.1991.tb00174.x](https://doi.org/10.1111/j.1467-9280.1991.tb00174.x). — *Empirical grounding for the combined recency × frequency formulation that the utility axis and decay rule approximate.*
 - **Collins, A. M., & Loftus, E. F. (1975).** A Spreading-Activation Theory of Semantic Processing. *Psychological Review,* 82(6), 407–428. DOI: [10.1037/0033-295X.82.6.407](https://doi.org/10.1037/0033-295X.82.6.407). — *Foundational model for the seed-plus-Hebbian-boost pattern in §3: direct activation propagates along weighted associations to neighboring nodes.*
 - **Hebb, D. O. (1949).** *The Organization of Behavior: A Neuropsychological Theory.* New York: Wiley. (Reissue: Psychology Press, 2002. ISBN 978-0805843002.) — *Basis for Pathway B reinforcement in §3 and §7 — co-activated engrams strengthen their connection on each joint retrieval.*

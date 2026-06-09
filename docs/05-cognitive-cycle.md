@@ -214,6 +214,14 @@ The cycle does not grow a new stage for multi-producer use. It fans out stage 1 
 
 ---
 
+## Feedback wiring (Phase B / A.7)
+
+After every assistant response, collabMEM&trade; applies implicit positive reinforcement to the engrams that were activated for that turn (`applyImplicitPositiveSignals`). When a follow-up user message matches memory-repair patterns ("remind me…", "what did we decide…", "do you remember…"), implicit negative reinforcement is applied to the previously-activated engrams (`applyImplicitNegativeSignals`). Both calls are bounded so they cannot mutate engrams whose `userEdit` is set — user edits always dominate.
+
+Explicit thumbs-up / thumbs-down buttons on each Payload Inspector memory segment call `recordExplicitFeedback`, which moves utility scores in larger steps than the implicit signals. Every reinforcement event is emitted to the in-memory `FeedbackEvent` buffer in `collabMemStore` so the Memory Inspector Activity tab can render a visible audit trail.
+
+---
+
 ## Academic references
 
 Stages 4 (*Activate*) and 5 (*Reinforce*) rest on three classical sources. Citations for *Extract*, *Reconcile*, and *Store* are better placed in those chapters' own references. For the full bibliography, see the [README's Academic references section](../README.md#academic-references).

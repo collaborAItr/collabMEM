@@ -129,6 +129,8 @@ For each turn, the Payload Inspector must let the user answer:
 
 The last control — "stop using this memory" — is a direct link to suppressing the asset in the Memory Inspector.
 
+The Payload Inspector also includes a dedicated **Pinned** tab that lists every engram the user pinned across the active scope chain. Each row shows the engram scope, a content preview, and an inline Unpin action. Inside per-turn collabMEM&trade; prompt segments, engrams with `bypassReason === 'userPinned'` are explicitly tagged so users can immediately see which manual overrides bypassed the relevance floor and influenced the assembled prompt.
+
 ### No hidden prompts
 
 There must be **no hidden prompt fragments**. If there is an internal system prompt the user cannot see, you have broken the contract. If commercial or privacy reasons demand redaction, redact explicitly with a visible "redacted system instruction" marker rather than silently hiding content.
@@ -150,6 +152,23 @@ Manual mutability is a core requirement, not a Phase 2 polish item. The minimum 
 | Reject    | Move a pending asset to rejected; log the decision                       |
 | Restore   | Bring archived memory back to active                                     |
 
+> **Reference implementation (Phase A.2 + A.3).** The collaborAItr harness
+> implements every action in this table on `LocalEngram` via nine mutator
+> methods on `LocalCognitiveMemory`
+> (`editEngram`, `archiveEngram`, `restoreEngram`, `suppressEngram`,
+> `unsuppressEngram`, `pinEngram`, `unpinEngram`, `approveEngram`,
+> `rejectEngram`) plus the generic `updateEngramFields(id, partial)` /
+> `updateDigestFields(id, partial)` helpers consumed by later phases
+> (B.1 embeddings backfill, B.2 scope promotion, C.1 consolidation,
+> C.6 active-learning). The `state` union was widened in A.2 to
+> `'active' | 'archived' | 'superseded' | 'pending' | 'suppressed'`.
+> Pinned engrams (`userPinned === true`) bypass the relevance-floor
+> inclusion threshold (chapter 09) **and** survive the A.4 auto-archival
+> sweep. Suppressed and pending engrams are excluded from `activate()`
+> regardless of score. A dedicated **Pending** tab in the Memory Inspector
+> surfaces every engram in `state: 'pending'` (populated by the A.8 PII
+> filter and, in later phases, by reconciliation mode 1).
+
 ### Who wins on conflict
 
 **User edits always win over automated extraction.** Always. If an extraction pass later proposes a change to an edited item, the pipeline must either skip the update or route it to explicit user approval. This is non-negotiable.
@@ -167,6 +186,16 @@ userEdit: {
 ```
 
 Edited items are visually distinguishable in the Memory Inspector so the user can see which assets they have personally shaped.
+
+> **Reference implementation (Phase A.2).** `LocalEngram.userEdit` is written
+> by `editEngram(id, newContent, editedBy)` with `previousContent` captured
+> before the overwrite. Once set, `applyImplicitPositiveSignals` and
+> `applyImplicitNegativeSignals` early-return for that engram, and the
+> consensus-merge pipeline (`applyConsensusEngrams`) preserves the user's
+> content rather than letting a later extraction pass overwrite it.
+> `lastUserDecisionAt` captures the timestamp of any explicit user action
+> (edit / pin / suppress / approve / reject) — used by B.4 to drive the
+> user-wins sync policy.
 
 ### Confirmations
 
@@ -250,6 +279,49 @@ Developers need deeper visibility than end users. Keep the two separate.
 - verifier/reconciliation intermediate output
 
 Mixing these two audiences produces a Memory Inspector that is either too technical for users or too sanitized for developers.
+
+---
+
+## Activation event log (Phase B / A.6)
+
+Every call to `activate()` writes a durable `ActivationEvent` row containing the query, query type, model ID, selected and excluded engram IDs, score components per engram (FTS / vector / recency / temporal / hebbian / utility / final score), relevance-floor decisions (with bypass reasons such as `userPinned`), budget consumed, and assembled memory tokens.
+
+The Payload Inspector exposes a "Why this memory?" expandable row on each collabMEM&trade;-injected segment that decodes the score components for the originating engram. Activation events are mirrored to Postgres via `mem_activation_events` (see [11-implementation-notes.md](11-implementation-notes.md)) for cross-device inspection and for the prompt-size SLO dashboard introduced in C.7.
+
+Events are append-only on the server; the local Dexie row may be updated post-assembly with `budgetConsumed`, `assembledMemoryTokens`, and (post-A.11) `promptTokensActual`, but those fields are populated before the row first ships to the cloud, so the server-side row stays a single immutable record per `activate()` call.
+
+---
+
+## Visual graph view
+
+Tabular cards are the primary surface, but they hide one thing: shape. A user staring at a list of fifty engrams can't see whether their memory store is one well-connected cluster or twenty disconnected islands, can't see which engrams have rich neighborhoods and which are orphans, and can't easily tell which subgraph just got lit up by the latest activation.
+
+A visual graph tab fills that gap.
+
+### What it renders
+
+A force-directed layout where:
+
+- **Nodes** are engrams. Visual encoding carries the same state primitives the cards expose:
+  - Color encodes lifecycle state (`active` / `pending` / `archived` / `superseded` / `suppressed`) with a distinct, accessible palette.
+  - Size scales with `utilityScore` (or `accessCount` — pick one, document it).
+  - Pinned engrams get a clear chrome treatment so they read as "always on."
+- **Edges** are associations. Color encodes the typed `relationshipType`; thickness encodes association `weight`.
+- **Recently-activated engrams** carry a transient highlight so the user can see at a glance "here's what the last query lit up."
+
+### Filters
+
+The minimum useful filter set: by lifecycle state, by scope, by relationship type, and a free-text search over concept/content. Filters subset the visible nodes and edges; they don't delete or hide the underlying data.
+
+### What the graph is *not* for
+
+- It is **not** an editor. Drag-to-merge or right-click-to-archive flows belong in the cards. The graph is a viewer.
+- It is **not** the primary inspection surface. Cards remain the source of truth for provenance, scoring, and lifecycle actions; the graph is a structural overview that complements them.
+- It is **not** required for transparency to work. A perfectly transparent system can ship without it. It exists to surface *structure* that cards can't.
+
+### Cost
+
+Force-directed layouts get expensive past a few thousand nodes. Lazy-load the rendering library on tab open (it's not part of the main bundle), and degrade to a paginated "top N by utility" view above whatever node count your target hardware comfortably handles.
 
 ---
 

@@ -1,4 +1,4 @@
-# collabMEM vs. Karpathy’s LLM Wiki: Differentiators
+# collabMEM&trade; vs. Karpathy’s LLM Wiki: Differentiators
 
 **Cognitive Memory Layer Architecture vs. Personal Knowledge Base Pattern**  
 *Version 1.0 – April 2026*
@@ -14,7 +14,7 @@ The user browses the resulting graph view, backlinks, and pages in Obsidian whil
 
 **Primary goal**: Compound personal knowledge over time in an explicit, human-navigable, portable format. It replaces repeated raw RAG with a pre-synthesized, living knowledge artifact.
 
-### collabMEM
+### collabMEM&trade;
 An architectural reference and design pattern for a **cognitive memory layer** inside LLM chat applications or agent harnesses. It defines a five-stage memory lifecycle (**Extract → Reconcile → Store → Activate → Reinforce**) applied to conversation turns and external inputs. Memory is stored as structured objects rather than raw or synthesized text files.
 
 **Philosophy**: Treat memory as a first-class **cognitive system** (inspired by engrams, Hebbian learning, spreading activation, and Bayesian updating), not just retrieval or summarization.
@@ -23,7 +23,7 @@ An architectural reference and design pattern for a **cognitive memory layer** i
 
 ## 2. Key Differentiators
 
-| Aspect                        | Karpathy’s LLM Wiki (Individual User Focus)                          | collabMEM (LLM Harness / Application Focus)                          |
+| Aspect                        | Karpathy’s LLM Wiki (Individual User Focus)                          | collabMEM&trade; (LLM Harness / Application Focus)                          |
 |-------------------------------|-----------------------------------------------------------------------|-----------------------------------------------------------------------|
 | **Core Artifact**            | Interlinked Markdown files + raw sources in Obsidian vault           | Structured **engrams**, weighted **associations**, **salient digests**, and a **meta-vault** |
 | **Memory Representation**    | Human-readable synthesized wiki pages (summaries, concept articles)  | Machine-first structured objects with provenance, confidence scores, and typed relationships |
@@ -49,7 +49,7 @@ An architectural reference and design pattern for a **cognitive memory layer** i
 **Weaknesses (relative)**:  
 Context management is less rigorous. Lacks formal reinforcement, decay, or confidence scoring. More manual orchestration at the workflow level.
 
-### collabMEM Strengths
+### collabMEM&trade; Strengths
 - Solves context window exhaustion with stable, predictable prompt sizes
 - Cognitive depth: memory strengthens/weakens based on use and forms dynamic associations
 - Better suited for production harnesses and multi-agent coordination
@@ -62,26 +62,26 @@ Not a drop-in tool — requires implementation. Less emphasis on beautiful human
 
 The two approaches are **highly synergistic** rather than competitive. A hybrid system can deliver the best of both worlds:
 
-- **Use collabMEM as the backend cognitive engine**: Extract engrams, maintain salient digests, reinforce associations, and manage stable context during conversations.
+- **Use collabMEM&trade; as the backend cognitive engine**: Extract engrams, maintain salient digests, reinforce associations, and manage stable context during conversations.
 
 - **Surface synthesized outputs into a Karpathy-style wiki**: Periodically compile high-level engrams and digests into clean Markdown wiki pages for human consumption in Obsidian. The LLM “programmer” then maintains the wiki using the structured memory as a reliable source of truth.
 
 ### Example Hybrid Workflow
-1. User chats with the agent → collabMEM extracts, reconciles, and reinforces engrams while creating salient digests.
+1. User chats with the agent → collabMEM&trade; extracts, reconciles, and reinforces engrams while creating salient digests.
 2. At session end or on schedule, a synthesis agent updates the Obsidian wiki (creating/editing concept pages and adding backlinks).
 3. User browses the rich graph view in Obsidian for exploration and sense-making.
 4. New external inputs are ingested → processed by the memory loop → reflected in both the structured store and the wiki.
 
 **Benefits of the Hybrid**:
 - Efficiency + rich usability
-- Stable context and reinforcement (collabMEM) + beautiful, inspectable knowledge base (Karpathy)
+- Stable context and reinforcement (collabMEM&trade;) + beautiful, inspectable knowledge base (Karpathy)
 - Human + machine alignment
 - Future-proofing (wiki can later be used for fine-tuning)
 
 ## 5. Recommendation
 
 - **Choose Karpathy’s LLM Wiki** if you are an **individual** or small team wanting a powerful, immediately usable **personal second brain** today.
-- **Choose (or implement) collabMEM** if you are building a **serious LLM application, chat harness, or multi-agent system** where context stability, long-term adaptation, and architectural rigor matter.
-- **Combine them** for the strongest outcome: Use collabMEM concepts for the robust memory backend and feed synthesized results into an Obsidian-based wiki for the human-facing knowledge layer.
+- **Choose (or implement) collabMEM&trade;** if you are building a **serious LLM application, chat harness, or multi-agent system** where context stability, long-term adaptation, and architectural rigor matter.
+- **Combine them** for the strongest outcome: Use collabMEM&trade; concepts for the robust memory backend and feed synthesized results into an Obsidian-based wiki for the human-facing knowledge layer.
 
 This combination respects Karpathy’s “file over app” philosophy while adding the cognitive architecture needed for production-grade, long-lived LLM systems.

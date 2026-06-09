@@ -1,11 +1,11 @@
-# collabMEM Commercial License
+# collabMEM&trade; Commercial License
 
-collabMEM: Open Cognitive Memory Architecture
+collabMEM&trade;: Open Cognitive Memory Architecture
 Copyright (c) 2026 collaborAItr
 
 ---
 
-This Commercial License Agreement ("Agreement") governs the use of the collabMEM specification, framework, taxonomy, lifecycle definitions, UI/UX requirements, storage/retrieval patterns, privacy model, reconciliation extensions, and all associated documentation (collectively, "the Work") by commercial licensees.
+This Commercial License Agreement ("Agreement") governs the use of the collabMEM&trade; specification, framework, taxonomy, lifecycle definitions, UI/UX requirements, storage/retrieval patterns, privacy model, reconciliation extensions, and all associated documentation (collectively, "the Work") by commercial licensees.
 
 This is an **alternative** to the CC-BY-SA 4.0 license in [LICENSE](LICENSE). Most users do not need a commercial license. Request one only if you cannot comply with the ShareAlike obligation or the public attribution requirement of CC-BY-SA 4.0.
 
@@ -32,7 +32,7 @@ The Licensee is not required to display public attribution in their product or u
 
 However, the following must appear in internal technical documentation or a credits/acknowledgements file:
 
-> "This product incorporates concepts from collabMEM by collaborAItr, used under commercial license."
+> "This product incorporates concepts from collabMEM&trade; by collaborAItr, used under commercial license."
 
 ## 3. Restrictions
 
@@ -40,8 +40,8 @@ The Licensee may NOT:
 
 1. Resell, sublicense, or redistribute the Work itself (in original or modified form) as a standalone specification or framework document.
 2. Claim authorship or original creation of the Work or any substantial portion thereof.
-3. Use the name "collabMEM" or "collaborAItr" in marketing materials without prior written consent.
-4. Use the Work to build a product whose primary purpose is to compete with or replicate collabMEM as a published framework or specification.
+3. Use the name "collabMEM&trade;" or "collaborAItr" in marketing materials without prior written consent.
+4. Use the Work to build a product whose primary purpose is to compete with or replicate collabMEM&trade; as a published framework or specification.
 
 ## 4. Fees and Terms
 

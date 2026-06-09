@@ -1,6 +1,6 @@
 # Code Of Conduct
 
-This collabMEM Open Architecture project is intended to help developers discuss and design user-controlled memory systems for LLM chat apps.
+This collabMEM&trade; Open Architecture project is intended to help developers discuss and design user-controlled memory systems for LLM chat apps.
 
 ## Expected Behavior
 

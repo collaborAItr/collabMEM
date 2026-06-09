@@ -1,6 +1,6 @@
 # Contributing Scope
 
-Thanks for your interest in improving collabMEM Open Architecture.
+Thanks for your interest in improving collabMEM&trade; Open Architecture.
 
 This repository is documentation-first. Contributions should improve clarity, portability, safety, or practical usefulness for developers building their own cognitive memory layer.
 

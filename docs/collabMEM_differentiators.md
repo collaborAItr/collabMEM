@@ -1,4 +1,4 @@
-# collabMEM: A Different Kind of Memory
+# collabMEM&trade;: A Different Kind of Memory
 
 ### Why architecture-first thinking beats bolt-on memory libraries
 
@@ -10,13 +10,13 @@ Every LLM chat application ships with the same quiet time bomb: a context window
 
 The naive implementation stacks user and assistant messages into the prompt until something breaks — cost explodes, response quality degrades, or the window fills and the app truncates. The standard industry responses — use a bigger context window, bolt on a vector store, call it RAG — defer the problem. None of them solve it.
 
-**collabMEM starts from a different premise.** Memory is not a retrieval problem. It is an architecture problem. And the time to solve it is before you ship, not after your p95 latency triples at turn 80.
+**collabMEM&trade; starts from a different premise.** Memory is not a retrieval problem. It is an architecture problem. And the time to solve it is before you ship, not after your p95 latency triples at turn 80.
 
 ---
 
-## What collabMEM Is
+## What collabMEM&trade; Is
 
-collabMEM is an open architectural reference for building a **cognitive memory layer** alongside an LLM chat application. It is not a library, SDK, or hosted service. It is a complete, opinionated set of architectural documents — written to be read by human developers and LLM coding assistants alike — that describe:
+collabMEM&trade; is an open architectural reference for building a **cognitive memory layer** alongside an LLM chat application. It is not a library, SDK, or hosted service. It is a complete, opinionated set of architectural documents — written to be read by human developers and LLM coding assistants alike — that describe:
 
 - How to observe each conversation turn and extract structured, typed memory from it
 - How to store that memory with provenance and let it decay when unused
@@ -28,7 +28,7 @@ The architecture applies to single-assistant apps, multi-assistant apps, and age
 
 ---
 
-## The Salient Digest: How collabMEM Keeps Long Conversations Healthy
+## The Salient Digest: How collabMEM&trade; Keeps Long Conversations Healthy
 
 This is the feature that makes the largest practical difference for applications with extended or persistent conversations — customer support agents, coding assistants with project continuity, companion apps, long-running research agents.
 
@@ -46,7 +46,7 @@ The digest is not a simple text summary. It is a structured object with its own 
 
 ### How it changes the prompt
 
-Instead of appending the raw turn to the growing transcript, collabMEM replaces verbatim turn history with its corresponding salient digest. The activation pass then assembles the next prompt from:
+Instead of appending the raw turn to the growing transcript, collabMEM&trade; replaces verbatim turn history with its corresponding salient digest. The activation pass then assembles the next prompt from:
 
 - The digests of recent turns (compact, structured, high signal)
 - The engrams and associations most relevant to the current query (scored by recency, frequency, and semantic proximity)
@@ -69,11 +69,11 @@ This is what "memory that works" actually means: not a database you bolt on, but
 
 ---
 
-## How collabMEM Compares to the Alternatives
+## How collabMEM&trade; Compares to the Alternatives
 
 The market for LLM memory tools has grown quickly. Here is an honest account of where the differences lie.
 
-**NOTE:** There is a second document that [compares collabMEM to Karpathy's LLM Wiki](collabMEM_vs_Karpathy_wiki.md) solution for an individuals' knowledge graph vs for LLM harness applications, and how they can be combined for an even more robust solution.
+**NOTE:** There is a second document that [compares collabMEM&trade; to Karpathy's LLM Wiki](collabMEM_vs_Karpathy_wiki.md) solution for an individuals' knowledge graph vs for LLM harness applications, and how they can be combined for an even more robust solution.
 
 ---
 
@@ -83,11 +83,11 @@ Mem0 is the most widely adopted memory library in the ecosystem, with strong pro
 
 **Where it works well:** Single-model chatbots where the primary need is to remember user preferences and facts across sessions. Quick to integrate. Production-hardened.
 
-**Where collabMEM differs:**
+**Where collabMEM&trade; differs:**
 
-Mem0 retrieves memory. collabMEM manages context. These are related but distinct problems. Mem0 does not address the growing-transcript cost structure — it adds memory retrieval on top of the same context-appending baseline. There is no equivalent to the salient digest: raw turns still accumulate, and Mem0's retrieved facts are injected alongside them, not in place of them.
+Mem0 retrieves memory. collabMEM&trade; manages context. These are related but distinct problems. Mem0 does not address the growing-transcript cost structure — it adds memory retrieval on top of the same context-appending baseline. There is no equivalent to the salient digest: raw turns still accumulate, and Mem0's retrieved facts are injected alongside them, not in place of them.
 
-Mem0 also treats the memory store as an implementation detail. The user has no inspection surface. collabMEM's Memory Inspector and Payload Inspector are first-class architectural components — users can see what the system remembers and what the assistant actually received.
+Mem0 also treats the memory store as an implementation detail. The user has no inspection surface. collabMEM&trade;'s Memory Inspector and Payload Inspector are first-class architectural components — users can see what the system remembers and what the assistant actually received.
 
 ---
 
@@ -97,13 +97,13 @@ Zep is a production-grade memory server with a notable architectural feature: a 
 
 **Where it works well:** Enterprise applications where user state changes over time and temporal accuracy matters — "I used to work at X" versus "I work at X now." High-throughput, asynchronous, full-featured server infrastructure.
 
-**Where collabMEM differs:**
+**Where collabMEM&trade; differs:**
 
 Zep's temporal graph is powerful for entity-state management, but the memory model is fundamentally graph-plus-retrieval — a more sophisticated version of the same retrieval paradigm. The salient digest compression loop is absent: context management is not a first-class concern of the Zep architecture.
 
-The reconciliation layer collabMEM describes — particularly the multi-model consensus modes — has no analogue in Zep. For teams running parallel model architectures, this is a meaningful gap.
+The reconciliation layer collabMEM&trade; describes — particularly the multi-model consensus modes — has no analogue in Zep. For teams running parallel model architectures, this is a meaningful gap.
 
-Zep is also opaque to the end user by design. It is infrastructure. collabMEM's transparency-first philosophy treats user inspectability as a trust and product quality requirement, not an optional debugging tool.
+Zep is also opaque to the end user by design. It is infrastructure. collabMEM&trade;'s transparency-first philosophy treats user inspectability as a trust and product quality requirement, not an optional debugging tool.
 
 ---
 
@@ -113,29 +113,29 @@ Letta is the most architecturally ambitious of the deployed frameworks. It refra
 
 **Where it works well:** Long-running autonomous agents that need to manage their own memory across extended task horizons.
 
-**Where collabMEM differs:**
+**Where collabMEM&trade; differs:**
 
 Letta's autonomy is its strength and its cost. Every cycle spent on memory logistics is a cycle not spent on task reasoning. The model is both the task agent and the memory manager — and managing memory is not a trivial task. Reliability depends heavily on the model's ability to correctly self-assess what to remember and forget.
 
-collabMEM separates concerns: a dedicated extraction pass handles memory, and the main assistant handles the task. This produces a more predictable system with cleaner failure modes. The extraction pass can be a smaller, cheaper model than the main assistant — a meaningful cost difference in production.
+collabMEM&trade; separates concerns: a dedicated extraction pass handles memory, and the main assistant handles the task. This produces a more predictable system with cleaner failure modes. The extraction pass can be a smaller, cheaper model than the main assistant — a meaningful cost difference in production.
 
-Letta also offers no user-visible inspection surface equivalent to collabMEM's Memory Inspector. The user's memory is managed by the agent, invisibly.
+Letta also offers no user-visible inspection surface equivalent to collabMEM&trade;'s Memory Inspector. The user's memory is managed by the agent, invisibly.
 
 ---
 
 ### Cognee
 
-Cognee is the closest project in spirit to collabMEM. It emphasizes knowledge graphs, semantic associations, a structured pipeline from ingestion to structuring to recall, and an open-source chain-of-thought retriever that performs well in multi-hop scenarios.
+Cognee is the closest project in spirit to collabMEM&trade;. It emphasizes knowledge graphs, semantic associations, a structured pipeline from ingestion to structuring to recall, and an open-source chain-of-thought retriever that performs well in multi-hop scenarios.
 
 **Where it works well:** Deep knowledge retrieval tasks where the semantic relationships between concepts matter more than episodic conversation history.
 
-**Where collabMEM differs:**
+**Where collabMEM&trade; differs:**
 
-Cognee is a deployable framework. collabMEM is an architecture. This is a genuine difference in philosophy: collabMEM's position is that the right memory layer for your application is shaped by your application, not by the choices a framework made for you. Storage backend, extraction model, schema specifics, and UI patterns should all be implementation decisions — not framework constraints.
+Cognee is a deployable framework. collabMEM&trade; is an architecture. This is a genuine difference in philosophy: collabMEM&trade;'s position is that the right memory layer for your application is shaped by your application, not by the choices a framework made for you. Storage backend, extraction model, schema specifics, and UI patterns should all be implementation decisions — not framework constraints.
 
-collabMEM's reconciliation layer — particularly its six configurable modes for multi-model and human-in-the-loop validation — is also more developed than anything Cognee prescribes. For teams running multi-assistant architectures, this is a meaningful capability difference.
+collabMEM&trade;'s reconciliation layer — particularly its six configurable modes for multi-model and human-in-the-loop validation — is also more developed than anything Cognee prescribes. For teams running multi-assistant architectures, this is a meaningful capability difference.
 
-collabMEM also acknowledges Cognee as a general design inspiration in its NOTICE file and is explicit about the independence of its implementation.
+collabMEM&trade; also acknowledges Cognee as a general design inspiration in its NOTICE file and is explicit about the independence of its implementation.
 
 ---
 
@@ -145,17 +145,17 @@ LangMem, from the LangGraph ecosystem, focuses on working memory: compressing lo
 
 **Where it works well:** Applications already built on LangGraph that need basic context compression. Low integration friction for LangChain users.
 
-**Where collabMEM differs:**
+**Where collabMEM&trade; differs:**
 
-LangMem optimizes for context management within the LangGraph paradigm. It is a pragmatic tool, not an architectural framework. The memory model is flatter — JSON documents with filters — rather than the typed engram/association graph collabMEM describes. There is no reinforcement mechanism, no decay, no Hebbian association weighting, no user inspection surface.
+LangMem optimizes for context management within the LangGraph paradigm. It is a pragmatic tool, not an architectural framework. The memory model is flatter — JSON documents with filters — rather than the typed engram/association graph collabMEM&trade; describes. There is no reinforcement mechanism, no decay, no Hebbian association weighting, no user inspection surface.
 
-LangMem is a component. collabMEM is a design for a system.
+LangMem is a component. collabMEM&trade; is a design for a system.
 
 ---
 
 ## The Differentiators, Summarized
 
-| | collabMEM | Mem0 | Zep | Letta | Cognee | LangMem |
+| | collabMEM&trade; | Mem0 | Zep | Letta | Cognee | LangMem |
 |---|---|---|---|---|---|---|
 | Salient digest compression | ✅ Core feature | ❌ | ❌ | Partial (agent-managed) | ❌ | Partial |
 | Stable context ceiling | ✅ By design | ❌ | ❌ | ✅ | ❌ | ✅ Partial |
@@ -174,9 +174,9 @@ LangMem is a component. collabMEM is a design for a system.
 
 ---
 
-## Who Should Use collabMEM
+## Who Should Use collabMEM&trade;
 
-collabMEM is the right choice if:
+collabMEM&trade; is the right choice if:
 
 - You are building a chat application from scratch and want to get the memory architecture right the first time rather than refactor it later under production pressure.
 - You are running a multi-assistant or multi-agent product where N models share context, and the per-turn cost of naive context management multiplies by N.
@@ -184,15 +184,15 @@ collabMEM is the right choice if:
 - You want users to be able to see, correct, and trust what the system remembers about them — and you understand that this is a product quality and trust requirement, not an optional debugging feature.
 - You are working with an LLM coding assistant and want a context-loadable, unambiguous implementation guide rather than source code to reverse-engineer.
 
-collabMEM is not the right starting point if your primary constraint is shipping something in the next two weeks that works for a simple single-session chatbot. In that case, Mem0 is the pragmatic choice. Come back to collabMEM when conversation length, context cost, or user trust become the bottleneck — which they will.
+collabMEM&trade; is not the right starting point if your primary constraint is shipping something in the next two weeks that works for a simple single-session chatbot. In that case, Mem0 is the pragmatic choice. Come back to collabMEM&trade; when conversation length, context cost, or user trust become the bottleneck — which they will.
 
 ---
 
 ## The Honest Tradeoff
 
-collabMEM gives you an architecture and asks you to build the implementation. It does not give you a running system. The extraction prompt, tuned thresholds, and certain production-specific assets from the collaborAItr reference implementation are not published here — you get the design, not the calibration.
+collabMEM&trade; gives you an architecture and asks you to build the implementation. It does not give you a running system. The extraction prompt, tuned thresholds, and certain production-specific assets from the collaborAItr reference implementation are not published here — you get the design, not the calibration.
 
-That is a real cost. It is also the point. The best memory layer for your application is not generic. It is shaped by your conversation patterns, your user base, your storage constraints, your latency budget, and your product values. collabMEM gives you the vocabulary, the object shapes, the lifecycle decisions, and the design principles to build that layer correctly — whatever your stack looks like underneath.
+That is a real cost. It is also the point. The best memory layer for your application is not generic. It is shaped by your conversation patterns, your user base, your storage constraints, your latency budget, and your product values. collabMEM&trade; gives you the vocabulary, the object shapes, the lifecycle decisions, and the design principles to build that layer correctly — whatever your stack looks like underneath.
 
 ---
 
